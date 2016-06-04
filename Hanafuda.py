@@ -32,7 +32,7 @@ def main():
     buttonsSS = pySprites.ScreenSection(screen.get_width()/2 -200, screen.get_height()/2 -100, 
                                          screen.get_width()/2 + 200, screen.get_height() -100)
     
-    buttons = []
+    MenuButtons = []
     player1_hand =[]
     player1_score = []
     player2_hand = []
@@ -40,7 +40,7 @@ def main():
     gameboard = []
     deck = []
     quitButton = pySprites.Button(screen,buttonsSS, "Quit")
-    buttons.append(quitButton)
+    MenuButtons.append(quitButton)
     
     #the "base line" for the ground
     #topy = screen.get_height()- 200
@@ -71,7 +71,7 @@ def main():
                 #leftx =leftx + 1
                 
     #groundgroup = pygame.sprite.Group(ground)
-    buttonGroup = pygame.sprite.Group(buttons)
+    menuButtonGroup = pygame.sprite.Group(MenuButtons)
     # ASSIGN
     clock = pygame.time.Clock()
     keepGoing = True
@@ -81,30 +81,34 @@ def main():
     
     # LOOP
     while keepGoing:
-        
-        # TIME
-        clock.tick(30)
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                keepGoing = False        
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mousex,mousey = pygame.mouse.get_pos()
-                print quitButton.within( mousex, mousey)
-                if quitButton.within(mousex, mousey):
-                    print "quit"
-                    keepGoing = False
+        menu = True
+        while menu:
+            # TIME
+            clock.tick(30)
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    keepGoing = False        
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mousex,mousey = pygame.mouse.get_pos()
+                    print quitButton.within( mousex, mousey)
+                    if quitButton.within(mousex, mousey):
+                        print "quit"
+                        menu = False
+                        keepGoing = False
             
         
-        # REFRESH SCREEN
-        #screen.blit(background, (0, 0))
-        #allSprites.update()
-        #allSprites.draw(screen)   
-        #groundgroup.update()
-        #groundgroup.draw(screen)
-        buttonGroup.draw(screen)
-        pygame.display.flip()
+                        # REFRESH SCREEN
+        
+                        #allSprites.update()
+                        #allSprites.draw(screen)   
+                        #groundgroup.update()
+                        #groundgroup.draw(screen)
+                        menuButtonGroup.draw(screen)
+                        pygame.display.flip()
     
+        #while game:
+            
     
     pygame.mouse.set_visible(True)
     pygame.time.delay(3000)

@@ -81,12 +81,12 @@ class Button(pygame.sprite.Sprite):
         return self.rect.top
     
     def within(self, x, y):
-        print "x:" + str(x)
-        print "y:" + str(y)
-        print "x1:" + str(self.rect.left)
-        print "x2:" + str(self.rect.right)
-        print "y1:" + str(self.rect.top)
-        print "y2:" + str(self.rect.bottom)        
-        return x > self.rect.left and x < self.rect.right and y > self.rect.top and y < self.rect.bottom
+        #print "x:" + str(x)
+        #print "y:" + str(y)
+        #print "x1:" + str(self.rect.left)
+        #print "x2:" + str(self.rect.right)
+        #print "y1:" + str(self.rect.top)
+        #print "y2:" + str(self.rect.bottom)        
+        return x >= self.rect.left and x <= self.rect.right and y >= self.rect.top and y <= self.rect.bottom
             
         
