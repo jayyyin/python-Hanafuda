@@ -142,6 +142,10 @@ def main():
             pygame.display.flip()
     
         while game:
+            #inisializing deck
+            tempdeck = range(1,49)
+            deck = random.sample(tempdeck, 48)
+                
             clock.tick(30)
             for event in pygame.event.get():
                 if event.type ==  pygame.QUIT:

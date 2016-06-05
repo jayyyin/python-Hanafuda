@@ -13,9 +13,16 @@ import pygame
 import math
 import random
 import time
+#button numbers
 QUIT = 0
 START = 1
 BACK = 2
+#card type numbers
+DREG = 0
+LIGHT = 1
+RIBBON = 2
+ANIMAL = 3
+
 
 class ScreenSection():
     '''this will contain information like x and y bounding boxes'''
@@ -41,7 +48,9 @@ class Card(pygame.sprite.Sprite):
         self.cardID = 0
         self.faceUp = False
         self.__screenSection = screenSection
+        self.month = 0
         self.imageID = 0
+        self.cardType = 0
         self.image = pygame.image.load("images/Hanafuda set1/" + str(self.imageID) + ".jpg")
         self.rect = self.image.get_rect()
         
