@@ -13,6 +13,9 @@ import pygame
 import math
 import random
 import time
+QUIT = 0
+START = 1
+BACK = 2
 
 class ScreenSection():
     '''this will contain information like x and y bounding boxes'''
@@ -42,6 +45,11 @@ class Card(pygame.sprite.Sprite):
         self.image = pygame.image.load("images/Hanafuda set1/" + str(self.imageID) + ".jpg")
         self.rect = self.image.get_rect()
         
+    def updateImage(self):
+        if faceUp and self.imageID != self.cardID:
+            self.imageID = self.cardID
+        elif not faceUp:
+            imageID = 0
         
 class Button(pygame.sprite.Sprite):
     '''this is a button sprite'''
@@ -53,12 +61,26 @@ class Button(pygame.sprite.Sprite):
         self.__screen = screen
         self.screenSection = screenSection
         self.buttonType = buttonType
+        self.image = pygame.image
+        self.pressedDown = False
         
-        if buttonType == "Quit":
+        
+        if buttonType == QUIT:
             self.image = pygame.image.load("images/buttons/Quit.gif").convert()
             self.rect = self.image.get_rect()
             self.rect.centerx = screenSection.centerX
             self.rect.centery = screenSection.centerY - 100
+        elif buttonType == START:
+            self.image = pygame.image.load("images/buttons/Start.gif").convert()
+            self.rect = self.image.get_rect()
+            self.rect.centerx = screenSection.centerX
+            self.rect.centery = screenSection.centerY - 150            
+        elif buttonType == BACK:
+            self.image = pygame.image.load("images/buttons/Back.gif").convert()
+            self.rect = self.image.get_rect()
+            self.rect.left = screenSection.tLX
+            self.rect.top = screenSection.tLY
+            
             
     def get_centerx(self):
         '''this method returns the center x of the tank'''
@@ -88,5 +110,12 @@ class Button(pygame.sprite.Sprite):
         #print "y1:" + str(self.rect.top)
         #print "y2:" + str(self.rect.bottom)        
         return x >= self.rect.left and x <= self.rect.right and y >= self.rect.top and y <= self.rect.bottom
-            
+    
+    def pressed(self):
+        self.pressedDown = True
+        self.image = pygame.transform.scale(self.image, (int(self.rect.width * 0.9 ), int (self.rect.height * 0.9 )))
+        
+    def released(self):
+        self.pressedDown = False
+        self.image = pygame.transform.scale(self.image, (int(self.rect.width * 1), int (self.rect.height * 1 )))
         

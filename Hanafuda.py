@@ -15,7 +15,11 @@ for joystick_no in range(pygame.joystick.get_count()):
     stick = pygame.joystick.Joystick(joystick_no)
     stick.init()
     joysticks.append(stick)
-    
+
+QUIT = 0
+START = 1
+BACK = 2
+
 def main():
     '''This function defines the 'mainline logic' for our game.'''
       
@@ -23,15 +27,18 @@ def main():
     pygame.display.set_caption("Hanafuda prototype")
     
     background = pygame.image.load("images\\background\\Tatami.JPG")
+    thanks = pygame.image.load("images\\Thanks.gif")
     
-    screen.blit(background, (0, 0))
+    
     
     
     
     # ENTITIES 
     buttonsSS = pySprites.ScreenSection(screen.get_width()/2 -200, screen.get_height()/2 -100, 
                                          screen.get_width()/2 + 200, screen.get_height() -100)
-    
+    titleBarSS = pySprites.ScreenSection(0,0,
+                                         screen.get_width() /2, 200)
+    titleBarButtons = []
     MenuButtons = []
     player1_hand =[]
     player1_score = []
@@ -39,8 +46,13 @@ def main():
     player2_score = []
     gameboard = []
     deck = []
-    quitButton = pySprites.Button(screen,buttonsSS, "Quit")
+    
+    backButton = pySprites.Button(screen,titleBarSS, BACK)
+    startGameButton = pySprites.Button(screen,buttonsSS, START)
+    quitButton = pySprites.Button(screen,buttonsSS, QUIT)
+    MenuButtons.append(startGameButton)
     MenuButtons.append(quitButton)
+    titleBarButtons.append(backButton)
     
     #the "base line" for the ground
     #topy = screen.get_height()- 200
@@ -72,46 +84,90 @@ def main():
                 
     #groundgroup = pygame.sprite.Group(ground)
     menuButtonGroup = pygame.sprite.Group(MenuButtons)
+    titleBarGroup = pygame.sprite.Group(titleBarButtons)
     # ASSIGN
     clock = pygame.time.Clock()
     keepGoing = True
+    menu = True
+    game = True    
     
     # Hide the mouse pointer
     #pygame.mouse.set_visible(False)
     
     # LOOP
     while keepGoing:
-        menu = True
+        clock.tick(30)
+        
         while menu:
             # TIME
             clock.tick(30)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    keepGoing = False        
+                    menu = False
+                    game = False                    
+                    keepGoing = False      
+                    
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mousex,mousey = pygame.mouse.get_pos()
                     print quitButton.within( mousex, mousey)
                     if quitButton.within(mousex, mousey):
-                        print "quit"
+                        quitButton.pressed()
+                        #print "quit"
+                        
+                    elif startGameButton.within(mousex, mousey):
+                        startGameButton.pressed()
+                        
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if quitButton.pressedDown:
+                        quitButton.released()
+                        pygame.time.delay(1000)
                         menu = False
-                        keepGoing = False
-            
+                        game = False
+                        keepGoing = False   
+                    elif startGameButton.pressedDown:
+                        startGameButton.released()
+                        menu = False
+                        game = True                        
+                    
         
                         # REFRESH SCREEN
         
-                        #allSprites.update()
-                        #allSprites.draw(screen)   
-                        #groundgroup.update()
-                        #groundgroup.draw(screen)
-                        menuButtonGroup.draw(screen)
-                        pygame.display.flip()
+            #allSprites.update()
+            #allSprites.draw(screen)  
+            #groundgroup.update()
+            #groundgroup.draw(screen)
+            screen.blit(background, (0, 0))
+            menuButtonGroup.draw(screen)
+            pygame.display.flip()
     
-        #while game:
-            
+        while game:
+            clock.tick(30)
+            for event in pygame.event.get():
+                if event.type ==  pygame.QUIT:
+                    menu = False
+                    game = False
+                    keepGoing = False  
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mousex,mousey = pygame.mouse.get_pos()
+                    if backButton.within(mousex, mousey):
+                        backButton.pressed()
+                        
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if backButton.pressedDown:
+                        backButton.released()
+                        menu = True
+                        game = False                        
+                        
+            screen.blit(background, (0, 0))
+            titleBarGroup.draw(screen)
+            pygame.display.flip()
     
     pygame.mouse.set_visible(True)
-    pygame.time.delay(3000)
+    screen.blit(background,(0,0))
+    screen.blit(thanks, (screen.get_width() / 2 - thanks.get_width() /2 , screen.get_height() /4))
+    pygame.display.flip()
+    pygame.time.delay(4000)
     pygame.quit()
         
 main()
