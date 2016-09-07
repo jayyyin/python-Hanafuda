@@ -1,5 +1,5 @@
 '''
-   This is an experimental game 
+   This is an experimental game (will probably be called Hanafuda Battle if ever ported to android)
 '''
 
 # I - IMPORT AND INITIALIZE
@@ -29,23 +29,39 @@ def main():
     background = pygame.image.load("images\\background\\Tatami.JPG")
     thanks = pygame.image.load("images\\Thanks.gif")
     
-    
+    gameToBeInit = True
     
     
     
     # ENTITIES 
-    buttonsSS = pySprites.ScreenSection(screen.get_width()/2 -200, screen.get_height()/2 -100, 
+    buttonsSS = pySprites.ScreenSection("buttonsSS" ,screen.get_width()/2 -200, screen.get_height()/2 -100, 
                                          screen.get_width()/2 + 200, screen.get_height() -100)
-    titleBarSS = pySprites.ScreenSection(0,0,
-                                         screen.get_width() /2, 200)
+    
+    titleBarSS = pySprites.ScreenSection("titleBarSS", 0,screen.get_height() /3,
+                                         screen.get_width() / 5, screen.get_height() * 2 /3)
+    
+    bottomPlayerSS = pySprites.ScreenSection("bottomPlayerSS", 50, screen.get_height() *2 /3,
+                                         screen.get_width() /2, screen.get_height()-100)
+    
+    centerBoardSS = pySprites.ScreenSection("centerBoardSS", screen.get_width() / 3 ,screen.get_height() /3,
+                                         screen.get_width()-50, screen.get_height() *2 /3)
+    
+    DeckSS = pySprites.ScreenSection("DeckSS", screen.get_width() / 5 ,screen.get_height() /3,
+                                             screen.get_width() / 3, screen.get_height() *2 /3)   
+    
+    localPlayer_handSS = pySprites.ScreenSection("localPlayer_handSS", 50 , screen.get_height() *2 /3, 
+                                                 screen.get_width() -10, screen.get_height() -10)
+    
+    
     titleBarButtons = []
     MenuButtons = []
-    player1_hand =[]
-    player1_score = []
-    player2_hand = []
-    player2_score = []
-    gameboard = []
+    localPlayer_hand =[]
+    localPlayer_score = []
+    remotePlayer_hand = []
+    remotePlayer_score = []
+    centerBoardSprites = []
     deck = []
+    deckSprites = []
     
     backButton = pySprites.Button(screen,titleBarSS, BACK)
     startGameButton = pySprites.Button(screen,buttonsSS, START)
@@ -85,6 +101,7 @@ def main():
     #groundgroup = pygame.sprite.Group(ground)
     menuButtonGroup = pygame.sprite.Group(MenuButtons)
     titleBarGroup = pygame.sprite.Group(titleBarButtons)
+    #deckSpritesGroup = pygame.sprite.Group(deckSprites)
     # ASSIGN
     clock = pygame.time.Clock()
     keepGoing = True
@@ -110,7 +127,7 @@ def main():
                     
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mousex,mousey = pygame.mouse.get_pos()
-                    print quitButton.within( mousex, mousey)
+                    #print quitButton.within( mousex, mousey)
                     if quitButton.within(mousex, mousey):
                         quitButton.pressed()
                         #print "quit"
@@ -140,12 +157,46 @@ def main():
             screen.blit(background, (0, 0))
             menuButtonGroup.draw(screen)
             pygame.display.flip()
-    
+            
         while game:
-            #inisializing deck
-            tempdeck = range(1,49)
-            deck = random.sample(tempdeck, 48)
+            
+            if(gameToBeInit):
+                #clearing board and deck for reinisialization
+                deck[:] = []
+                centerBoardSprites[:] = []
+                deckSprites[:] = []
                 
+                #clearing hands and score for reinisialization
+                localPlayer_hand[:] = []
+                remotePlayer_hand[:] = []
+                localPlayer_score[:] = []
+                remotePlayer_score[:] = []
+                
+                #inisializing deck
+                col = 4
+                row = 2
+                tempdeck = range(1,49)
+                deck = random.sample(tempdeck, 48)
+                
+                for i in deck:
+                    deckSprites.append(pySprites.Card(screen, DeckSS, i))
+                #initialzing centerBoard
+                centerBoard =  pySprites.Board(centerBoardSS, col, row)
+                
+                #inisializing cards on board
+                for i in range(col * row):
+                    centerBoardSprites.append(deckSprites.pop())
+                    centerBoardSprites[i].setScreenSection(centerBoard.slots[i][0])
+                    centerBoardSprites[i].faceUp = True
+                    centerBoardSprites[i].updateImage()
+                    centerBoard.slots[i][1] = True
+                
+                gameToBeInit = False
+                
+            centerBoardSpritesGroup = pygame.sprite.Group(centerBoardSprites)
+            deckSpritesGroup = pygame.sprite.Group(deckSprites)
+            
+            
             clock.tick(30)
             for event in pygame.event.get():
                 if event.type ==  pygame.QUIT:
@@ -155,15 +206,19 @@ def main():
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mousex,mousey = pygame.mouse.get_pos()
                     if backButton.within(mousex, mousey):
+                        
                         backButton.pressed()
                         
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if backButton.pressedDown:
+                        gameToBeInit = True
                         backButton.released()
                         menu = True
                         game = False                        
                         
             screen.blit(background, (0, 0))
+            centerBoardSpritesGroup.draw(screen)
+            deckSpritesGroup.draw(screen)
             titleBarGroup.draw(screen)
             pygame.display.flip()
     
@@ -171,7 +226,7 @@ def main():
     screen.blit(background,(0,0))
     screen.blit(thanks, (screen.get_width() / 2 - thanks.get_width() /2 , screen.get_height() /4))
     pygame.display.flip()
-    pygame.time.delay(4000)
+    pygame.time.delay(1500)
     pygame.quit()
         
 main()
