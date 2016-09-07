@@ -148,7 +148,19 @@ class Card(pygame.sprite.Sprite):
     #def update(self):
     
     def match(self, card):
-        self.cardID
+        
+        Number = self.cardID % 4
+        match = False
+        
+        if number == 1 and card.cardID == self.cardID + 1 or card.cardID == self.cardID + 2 or card.cardID == self.cardID + 3:
+            match = True
+        else if number == 2 and card.cardID == self.cardID - 1 or card.cardID == self.cardID + 1 or card.cardID == self.cardID + 2:
+            match = True
+        else if number == 3 and card.cardID == self.cardID - 2 or card.cardID == self.cardID - 1 or card.cardID == self.cardID + 1:
+            match = True        
+        else if number == 4 and card.cardID == self.cardID - 3 or card.cardID == self.cardID - 2 or card.cardID == self.cardID - 1:
+            match = True        
+        return match
         
 class Button(pygame.sprite.Sprite):
     '''this is a button sprite'''
