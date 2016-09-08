@@ -65,7 +65,11 @@ class Board():
                 self.slots[slotNumber][1] = False
                 #false if the slot is empty
                 slotNumber+= 1
-
+    def __str__(self):
+        toReturn = ""
+        for j in range (1,row * col):    
+                toReturn += "[" + j + "]"
+        return toReturn
 #class CenterBoard():
     #'''initializes the center board'''
     #def __init__(self,SS):
@@ -99,6 +103,8 @@ class Card(pygame.sprite.Sprite):
         self.cardID = ID
         self.faceUp = False
         self.mousedOnTF = False
+        self.tilted = False
+        self.match = False
         self.__screenSection = screenSection
         self.highlightColour = (255,255,0)
         self.month = 0
@@ -147,20 +153,33 @@ class Card(pygame.sprite.Sprite):
         return x >= self.rect.left and x <= self.rect.right and y >= self.rect.top and y <= self.rect.bottom    
     #def update(self):
     
-    def match(self, card):
+    def matches(self, card):
         
-        Number = self.cardID % 4
-        match = False
+        number = self.cardID % 4
+        matches = False
+        #print number
+        #print "0::" + str(card.cardID) + ":" + str(self.cardID)
         
-        if number == 1 and card.cardID == self.cardID + 1 or card.cardID == self.cardID + 2 or card.cardID == self.cardID + 3:
-            match = True
-        else if number == 2 and card.cardID == self.cardID - 1 or card.cardID == self.cardID + 1 or card.cardID == self.cardID + 2:
-            match = True
-        else if number == 3 and card.cardID == self.cardID - 2 or card.cardID == self.cardID - 1 or card.cardID == self.cardID + 1:
-            match = True        
-        else if number == 4 and card.cardID == self.cardID - 3 or card.cardID == self.cardID - 2 or card.cardID == self.cardID - 1:
-            match = True        
-        return match
+        if number == 1 and (card.cardID == self.cardID + 1 or card.cardID == self.cardID + 2 or card.cardID == self.cardID + 3):
+            #print "1::" + str(card.cardID) + ":" + str(self.cardID)
+            matches = True
+        elif number == 2 and (card.cardID == self.cardID - 1 or card.cardID == self.cardID + 1 or card.cardID == self.cardID + 2):
+            #print "2::" + str(card.cardID) + ":" + str(self.cardID)
+            matches = True
+        elif number == 3 and (card.cardID == self.cardID - 2 or card.cardID == self.cardID - 1 or card.cardID == self.cardID + 1):
+            #print "3::" + str(card.cardID) + ":" + str(self.cardID)
+            matches = True        
+        elif number == 4 and (card.cardID == self.cardID - 3 or card.cardID == self.cardID - 2 or card.cardID == self.cardID - 1):
+            #print "4::" + str(card.cardID) + ":" + str(self.cardID)
+            matches = True        
+        elif number == 0 and (card.cardID == self.cardID - 3 or card.cardID == self.cardID - 2 or card.cardID == self.cardID - 1):
+            matches = True
+        return matches
+    
+    #def tilt(self):
+    #   self.image = pygame.transform.rotate(self.scaledImage, 25)
+    def __str__(self):
+        return str(self.cardID)
         
 class Button(pygame.sprite.Sprite):
     '''this is a button sprite'''

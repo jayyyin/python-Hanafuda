@@ -64,6 +64,7 @@ def main():
     deckSprites = []
     maxCardsInHand = 8
     cardHighlights = []
+    matchedCards = []
     
     backButton = pySprites.Button(screen,titleBarSS, BACK)
     startGameButton = pySprites.Button(screen,buttonsSS, START)
@@ -72,6 +73,51 @@ def main():
     MenuButtons.append(quitButton)
     titleBarButtons.append(backButton)
     
+    deck[:] = []
+    centerBoardSprites[:] = []
+    deckSprites[:] = []
+                    
+    #clearing hands and score for reinisialization
+    localPlayer_handSprites[:] = []
+    remotePlayer_handSprites[:] = []
+    localPlayer_scoreSprites[:] = []
+    remotePlayer_scoreSprites[:] = []
+                    
+    #inisializing deck
+    deckCol = 6
+    deckRow = 2
+    tempdeck = range(1,49)
+    deck = random.sample(tempdeck, 48)
+    
+    for i in deck:
+        deckSprites.append(pySprites.Card(screen, DeckSS, i))
+        #initialzing centerBoard
+        centerBoard =  pySprites.Board(centerBoardSS, deckCol, deckRow)
+        localPlayer_handBoard =  pySprites.Board(localPlayer_handSS, maxCardsInHand, 1)
+        
+    #inisializing cards on board
+    for i in range((deckCol-2) * deckRow):
+        print deckSprites
+        centerBoardSprites.append(deckSprites.pop())
+        centerBoardSprites[i].setScreenSection(centerBoard.slots[i][0])
+        centerBoardSprites[i].faceUp = True
+        centerBoardSprites[i].updateImage()
+        centerBoard.slots[i][1] = True
+            
+    #inisializing cards on local hand
+    for i in range(maxCardsInHand):
+        localPlayer_handSprites.append(deckSprites.pop())
+        localPlayer_handSprites[i].setScreenSection(localPlayer_handBoard.slots[i][0])
+        localPlayer_handSprites[i].faceUp = True
+        localPlayer_handSprites[i].updateImage()
+        localPlayer_handBoard.slots[i][1] = True
+                        
+                    
+    gameToBeInit = False    
+    localPlayer_handGroup = pygame.sprite.Group(localPlayer_handSprites)
+    centerBoardSpritesGroup = pygame.sprite.Group(centerBoardSprites)
+    deckSpritesGroup = pygame.sprite.Group(deckSprites)        
+    cardHighlightsGroup =  pygame.sprite.Group(cardHighlights)
     #the "base line" for the ground
     #topy = screen.get_height()- 200
     
@@ -119,7 +165,7 @@ def main():
         
         while menu:
             # TIME
-            clock.tick(30)
+            #clock.tick(30)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -162,67 +208,42 @@ def main():
             
         while game:
             
-            if(gameToBeInit):
+            #if(gameToBeInit):
                 #clearing board and deck for reinisialization
-                deck[:] = []
-                centerBoardSprites[:] = []
-                deckSprites[:] = []
+                #print "done"
                 
-                #clearing hands and score for reinisialization
-                localPlayer_handSprites[:] = []
-                remotePlayer_handSprites[:] = []
-                localPlayer_scoreSprites[:] = []
-                remotePlayer_scoreSprites[:] = []
-                
-                #inisializing deck
-                deckCol = 6
-                deckRow = 2
-                tempdeck = range(1,49)
-                deck = random.sample(tempdeck, 48)
-                
-                for i in deck:
-                    deckSprites.append(pySprites.Card(screen, DeckSS, i))
-                #initialzing centerBoard
-                centerBoard =  pySprites.Board(centerBoardSS, deckCol, deckRow)
-                localPlayer_handBoard =  pySprites.Board(localPlayer_handSS, maxCardsInHand, 1)
-                
-                #inisializing cards on board
-                for i in range((deckCol-2) * deckRow):
-                    centerBoardSprites.append(deckSprites.pop())
-                    centerBoardSprites[i].setScreenSection(centerBoard.slots[i][0])
-                    centerBoardSprites[i].faceUp = True
-                    centerBoardSprites[i].updateImage()
-                    centerBoard.slots[i][1] = True
-                
-                #inisializing cards on local hand
-                for i in range(maxCardsInHand):
-                    localPlayer_handSprites.append(deckSprites.pop())
-                    localPlayer_handSprites[i].setScreenSection(localPlayer_handBoard.slots[i][0])
-                    localPlayer_handSprites[i].faceUp = True
-                    localPlayer_handSprites[i].updateImage()
-                    localPlayer_handBoard.slots[i][1] = True
-                    
-                
-                gameToBeInit = False
+           
             for card in localPlayer_handSprites:
                 mouseX, mouseY = pygame.mouse.get_pos()
                 #print mouseX
                 if card.within(mouseX, mouseY) and not card.mousedOnTF:
+                    
                     #cardHighlights.append([card.cardID,card.mousedOn()])
+                    for cardB in centerBoardSprites:
+                        #for each in centerBoardSprites:
+                            #print each                        
+                        if card.matches(cardB):
+                            matchedCards.append(cardB)
+                            #print str(card.cardID) + " :: " + str(cardB.cardID)
+                            cardB.mousedOn()
                     card.mousedOn()
                     #print "true"
                     card.mousedOnTF = True
                 if card.mousedOnTF and  not card.within(mouseX, mouseY):
+                    card.match = False
+                    for cardB in matchedCards:
+                        cardB.match = False
+                        cardB.mousedOff()
+                    matchedCards[:] = []
+                    #print matchedCards
                     card.mousedOff()
                     card.mousedOnTF = False
-            #cardHighlightsGroup =  pygame.sprite.Group(cardHighlights)
+            
             pygame.display.update()
-            localPlayer_handGroup = pygame.sprite.Group(localPlayer_handSprites)
-            centerBoardSpritesGroup = pygame.sprite.Group(centerBoardSprites)
-            deckSpritesGroup = pygame.sprite.Group(deckSprites)
             
             
-            clock.tick(30)
+            
+            #clock.tick(30)
             for event in pygame.event.get():
                 if event.type ==  pygame.QUIT:
                     menu = False
@@ -245,6 +266,7 @@ def main():
             #cardHighlightsGroup.draw(screen)
             #for item in cardHighlights:
                 #item[1].draw(screen)
+                   
             localPlayer_handGroup.draw(screen)
             centerBoardSpritesGroup.draw(screen)
             deckSpritesGroup.draw(screen)
@@ -258,4 +280,5 @@ def main():
     pygame.time.delay(1500)
     pygame.quit()
         
+
 main()
