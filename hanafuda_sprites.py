@@ -45,6 +45,8 @@ class Board():
     '''initializes any board'''
     def __init__(self,SS, col, row):
         slotNumber = 0
+        self.col = col
+        self.row = row
         self.slots = [[0 for x in range(2)] for y in range(row * col) ] 
         colOffSet = 1
         rowOffSet = 1
@@ -67,8 +69,8 @@ class Board():
                 slotNumber+= 1
     def __str__(self):
         toReturn = ""
-        for j in range (1,row * col):    
-                toReturn += "[" + j + "]"
+        for j in range (1,self.row * self.col):    
+                toReturn += "[" + str(j) + "]"
         return toReturn
 #class CenterBoard():
     #'''initializes the center board'''
@@ -105,6 +107,7 @@ class Card(pygame.sprite.Sprite):
         self.mousedOnTF = False
         self.tilted = False
         self.match = False
+        self.keepHighlighted = False
         self.__screenSection = screenSection
         self.highlightColour = (255,255,0)
         self.month = 0
@@ -112,6 +115,7 @@ class Card(pygame.sprite.Sprite):
         self.cardType = 0
         self.originalImage = pygame.image.load("images\\Hanafuda set1\\" + str(self.imageID) + ".jpg").convert()
         self.scaledImage = pygame.transform.scale(self.originalImage, (int(self.originalImage.get_rect().width / 2), int (self.originalImage.get_rect().height /2)))
+        self.scoreImage = pygame.transform.scale(self.scaledImage, (int(self.originalImage.get_rect().width / 2), int (self.originalImage.get_rect().height /2)))
         self.image = self.scaledImage
         self.rect = self.image.get_rect()
         self.rect.left = screenSection.tLX
@@ -139,12 +143,16 @@ class Card(pygame.sprite.Sprite):
             self.imageID = 0
         self.originalImage = pygame.image.load("images\\Hanafuda set1\\" + str(self.imageID) + ".jpg").convert()
         self.scaledImage = pygame.transform.scale(self.originalImage, (int(self.originalImage.get_rect().width / 2), int (self.originalImage.get_rect().height /2))) 
-        self.image = self.scaledImage
+        self.scoreImage = pygame.transform.scale(self.scaledImage, (int(self.originalImage.get_rect().width / 2), int (self.originalImage.get_rect().height /2)))
+        if self.__screenSection.name == "score":
+            self.image = self.scoreImage
+        else:
+            self.image = self.scaledImage
             
     def setScreenSection(self, screenSection):
         self.__screenSection = screenSection
         self.rect.left = screenSection.tLX
-        if screenSection.name == "hand":
+        if screenSection.name == "hand" and screenSection.name == "score":
             self.rect.bottom = screenSection.bRY
         else:
             self.rect.top = screenSection.tLY  

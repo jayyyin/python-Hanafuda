@@ -52,6 +52,9 @@ def main():
     localPlayer_handSS = pySprites.ScreenSection("hand", screen.get_width() / 5 , screen.get_height() *2 /3 + 50, 
                                                  screen.get_width() - 200, screen.get_height())
     
+    localPlayer_scoreSS = pySprites.ScreenSection("score", screen.get_width() - 200 , screen.get_height() *2 /3 + 50, 
+                                                     screen.get_width() - 200, screen.get_height()- 50)    
+    
     
     titleBarButtons = []
     MenuButtons = []
@@ -65,6 +68,7 @@ def main():
     maxCardsInHand = 8
     cardHighlights = []
     matchedCards = []
+    hoveredCard = 0
     
     backButton = pySprites.Button(screen,titleBarSS, BACK)
     startGameButton = pySprites.Button(screen,buttonsSS, START)
@@ -94,10 +98,11 @@ def main():
         #initialzing centerBoard
         centerBoard =  pySprites.Board(centerBoardSS, deckCol, deckRow)
         localPlayer_handBoard =  pySprites.Board(localPlayer_handSS, maxCardsInHand, 1)
+        localPlayer_scoreBoard = pySprites.Board(localPlayer_scoreSS, 10,5)
         
     #inisializing cards on board
     for i in range((deckCol-2) * deckRow):
-        print deckSprites
+        #print deckSprites
         centerBoardSprites.append(deckSprites.pop())
         centerBoardSprites[i].setScreenSection(centerBoard.slots[i][0])
         centerBoardSprites[i].faceUp = True
@@ -155,6 +160,8 @@ def main():
     keepGoing = True
     menu = True
     game = True    
+    NumOFCardsMatched = 0
+    scoreSlot = 0   
     
     # Hide the mouse pointer
     #pygame.mouse.set_visible(False)
@@ -212,39 +219,58 @@ def main():
                 #clearing board and deck for reinisialization
                 #print "done"
                 
-           
-            for card in localPlayer_handSprites:
-                mouseX, mouseY = pygame.mouse.get_pos()
-                #print mouseX
-                if card.within(mouseX, mouseY) and not card.mousedOnTF:
-                    
-                    #cardHighlights.append([card.cardID,card.mousedOn()])
-                    for cardB in centerBoardSprites:
-                        #for each in centerBoardSprites:
-                            #print each                        
-                        if card.matches(cardB):
-                            matchedCards.append(cardB)
-                            #print str(card.cardID) + " :: " + str(cardB.cardID)
-                            cardB.mousedOn()
-                    card.mousedOn()
-                    #print "true"
-                    card.mousedOnTF = True
-                if card.mousedOnTF and  not card.within(mouseX, mouseY):
-                    card.match = False
-                    for cardB in matchedCards:
-                        cardB.match = False
-                        cardB.mousedOff()
-                    matchedCards[:] = []
-                    #print matchedCards
-                    card.mousedOff()
-                    card.mousedOnTF = False
-            
-            pygame.display.update()
-            
-            
-            
-            #clock.tick(30)
             for event in pygame.event.get():
+                for card in localPlayer_handSprites:
+                    mouseX, mouseY = pygame.mouse.get_pos()
+                                
+                    #print mouseX
+                    if card.within(mouseX, mouseY) and not card.mousedOnTF:
+                    
+                        #cardHighlights.append([card.cardID,card.mousedOn()])
+                        for cardB in centerBoardSprites:
+                            #for each in centerBoardSprites:
+                            #print each                        
+                            if card.matches(cardB):
+                                matchedCards.append(cardB)
+                                hoveredCard = card
+                                #if cardB not in matchedCards:
+                                    #NumOFCardsMatched += 1
+                                #print str(card.cardID) + " :: " + str(cardB.cardID)
+                                cardB.mousedOn()
+                               
+                                        
+                            
+                            card.mousedOn()
+                            #print "true"
+                            card.mousedOnTF = True
+                    elif card.mousedOnTF and  not card.within(mouseX, mouseY) and not card.keepHighlighted:
+                        card.match = False
+                        NumOFCardsMatched = 0
+                        for cardB in matchedCards:
+                            cardB.match = False
+                            cardB.mousedOff()
+                        matchedCards[:] = []
+                        #print matchedCards
+                        card.mousedOff()
+                        card.mousedOnTF = False
+                if event.type == pygame.MOUSEBUTTONUP:
+                    print matchedCards
+                    if len(matchedCards) == 1:
+                        index = centerBoardSprites.index(matchedCards[0])
+                        for i in localPlayer_scoreBoard.slots:
+                            #if the slot isn't taken put the card in
+                            if not i[1]:
+                                scoreSlot = localPlayer_scoreBoard.slots.index(i)
+                                i[1] = True
+                        localPlayer_scoreSprites.append(localPlayer_handSprites.pop(localPlayer_handSprites.index(hoveredCard)))
+                        localPlayer_scoreSprites.append(centerBoardSprites.pop(index))
+                        hoveredCard.setScreenSection(localPlayer_scoreBoard.slots[scoreSlot][0])
+                        matchedCards[0].setScreenSection(localPlayer_scoreBoard.slots[scoreSlot - 1][0])
+                        centerBoard.slots[index][1] = False     
+                        hoveredCard.updateImage()
+                        matchedCards[0].updateImage()
+                        print localPlayer_scoreBoard
+           
                 if event.type ==  pygame.QUIT:
                     menu = False
                     game = False
@@ -252,15 +278,20 @@ def main():
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mousex,mousey = pygame.mouse.get_pos()
                     if backButton.within(mousex, mousey):
-                        
+                                    
                         backButton.pressed()
-                        
+                                    
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if backButton.pressedDown:
                         gameToBeInit = True
                         backButton.released()
                         menu = True
-                        game = False                        
+                        game = False                                    
+            
+            
+            #clock.tick(30) 
+            pygame.display.update()
+                
                         
             screen.blit(background, (0, 0))
             #cardHighlightsGroup.draw(screen)
